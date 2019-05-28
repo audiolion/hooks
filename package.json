@@ -24,6 +24,7 @@
   "devDependencies": {
     "@types/jest": "^24.0.13",
     "@types/react": "^16.8.18",
+    "@types/react-dom": "^16.8.4",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "babel-eslint": "9.x",
     "eslint": "5.x",
@@ -34,11 +35,17 @@
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "1.6.0",
     "jest": "^24.8.0",
+    "jest-dom": "^3.4.0",
     "prettier": "^1.17.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-hooks-testing-library": "^0.5.0",
+    "react-test-renderer": "16.8.6",
     "rollup": "^1.12.4",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-node-resolve": "^5.0.0",
     "rollup-plugin-typescript": "^1.0.1",
+    "ts-jest": "^24.0.2",
     "ts-node": "^8.2.0",
     "tslib": "^1.9.3",
     "typescript": "^3.4.5"
@@ -52,5 +59,17 @@
     "trailingComma": "all",
     "printWidth": 80,
     "singleQuote": true
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!<rootDir>/node_modules/"
+    ],
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.ts"
+    ]
   }
 }
