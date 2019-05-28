@@ -1,5 +1,5 @@
 import React from 'react';
 
-export function useMount(fn) {
+export function useMount(fn: () => any) {
   React.useEffect(fn, []);
 }

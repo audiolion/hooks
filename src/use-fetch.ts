@@ -66,7 +66,7 @@ const request = <S = any>(
       ...finalOptions,
       body: JSON.stringify(body),
       headers: {
-        ...(options.headers || {}),
+        ...(options ? options.headers : {}),
         'Content-Type': 'application/json',
       },
     };
