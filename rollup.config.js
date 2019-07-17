@@ -1,6 +1,7 @@
 import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
-import typescript from 'rollup-plugin-typescript';
+import typescript from 'rollup-plugin-typescript2';
+import { terser } from 'rollup-plugin-terser';
 import pkg from './package.json';
 
 const globals = { react: 'React' };
@@ -19,7 +20,10 @@ export default [
     plugins: [
       resolve(), // so Rollup can find deps
       commonjs(), // so Rollup can convert deps to an ES module
-      typescript(), // so Rollup can convert TypeScript to JavaScript
+      typescript({
+        typescript: require('typescript'),
+      }), // so Rollup can convert TypeScript to JavaScript
+      terser(),
     ],
   },
 
@@ -33,7 +37,10 @@ export default [
     input: 'src/index.ts',
     external: Object.keys(globals),
     plugins: [
-      typescript(), // so Rollup can convert TypeScript to JavaScript
+      typescript({
+        typescript: require('typescript'),
+      }), // so Rollup can convert TypeScript to JavaScript,
+      terser(),
     ],
     output: [
       { file: pkg.main, format: 'cjs', globals },
