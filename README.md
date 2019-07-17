@@ -2,6 +2,8 @@
 
 > React Hooks for general use
 
+[![codecov](https://codecov.io/gh/audiolion/hooks/branch/master/graph/badge.svg)](https://codecov.io/gh/audiolion/hooks)
+
 ## Installation
 
 ```shell
