@@ -199,3 +199,22 @@ function Component() {
   return <pre>{JSON.stringify(value)}</pre>;
 }
 ```
+
+### useTimeout
+
+If you want to change behavior of your component after a timeout occurs.
+
+```js
+import { useTimeout } from '@ryanar/hooks';
+
+function Component() {
+  const tenSeconds = 1000 * 10;
+  const timedOut = useTimeout(tenSeconds);
+
+  if (timedOut) {
+    return 'Sorry, the request is taking too long too load.';
+  }
+
+  return null;
+}
+```
