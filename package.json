@@ -16,7 +16,9 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "test": "jest"
+    "test": "jest",
+    "test:ci": "jest --ci --reporters=default --reporters=jest-junit --collectCoverage",
+    "test:cov": "jest --watchAll --collectCoverage --coverageReporters=html"
   },
   "files": [
     "dist"
@@ -36,6 +38,7 @@
     "eslint-plugin-react-hooks": "1.6.0",
     "jest": "^24.8.0",
     "jest-dom": "^3.4.0",
+    "jest-junit": "^6.4.0",
     "prettier": "^1.17.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
@@ -63,6 +66,8 @@
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
+      "!src/index.ts",
+      "!src/types/",
       "!<rootDir>/node_modules/"
     ],
     "globals": {
@@ -76,7 +81,7 @@
       "^.+\\.tsx?$": "ts-jest"
     },
     "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.ts"
+      "<rootDir>/setupTests.ts"
     ]
   }
 }
