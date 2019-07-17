@@ -1,4 +1,4 @@
-import { useAsyncFn } from './use-async-fn';
+import { useAsyncFn, AsyncState } from './use-async-fn';
 import { useIsMounted } from './use-is-mounted';
 import { Omit } from './utils';
 
@@ -16,7 +16,7 @@ export type UseFetchOptions = {
   options?: Omit<RequestInit, 'body'>;
 };
 
-const checkStatus = async (response: Response) => {
+export const checkStatus = async (response: Response) => {
   if (response.ok) return response;
 
   const error = new Error(`HTTP Error: ${response.statusText}`) as CustomError;
@@ -39,8 +39,10 @@ const checkStatus = async (response: Response) => {
       if (Array.isArray(errorData.errors)) {
         error.details = { default: errorData.errors.join('\n') };
       } else {
-        error.details = errorData.errors ? errorData.errors : errorData;
+        error.details = errorData.errors;
       }
+    } else {
+      error.details = errorData;
     }
   } catch (err) {
     error.details = { default: 'An error occurred.' };
@@ -48,7 +50,7 @@ const checkStatus = async (response: Response) => {
   throw error;
 };
 
-const request = <S = any>(
+export const request = <S = any>(
   defaultUrl: string,
   baseOptions: RequestInit,
   onSuccess: (data: S) => void,
@@ -115,7 +117,7 @@ export const useFetch = <S = any>({
     [url],
   );
 
-  return [state, callback];
+  return [state, callback] as [AsyncState<S>, () => void];
 };
 
 export type BaseUseFetch = {

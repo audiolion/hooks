@@ -24,6 +24,7 @@
     "dist"
   ],
   "devDependencies": {
+    "@types/fetch-mock": "^7.3.1",
     "@types/jest": "^24.0.13",
     "@types/react": "^16.8.18",
     "@types/react-dom": "^16.8.4",
@@ -36,9 +37,11 @@
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "1.6.0",
+    "fetch-mock": "^7.3.6",
     "jest": "^24.8.0",
     "jest-dom": "^3.4.0",
     "jest-junit": "^6.4.0",
+    "node-fetch": "^2.6.0",
     "prettier": "^1.17.1",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
