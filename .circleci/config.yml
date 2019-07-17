@@ -1,0 +1,43 @@
+version: 2.1
+
+jobs:
+  node:
+    working_directory: ~/hooks
+    docker:
+      - image: circleci/node:lts
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - yarn-v1-{{ checksum "yarn.lock" }}
+            - yarn-v1-
+
+      - run: yarn
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: yarn-v1-dependencies-{{ checksum "yarn.lock" }}
+
+      - run:
+          name: jest tests
+          command: |
+            mkdir -p test-results/jest
+            yarn test:ci
+          environment:
+            JEST_JUNIT_OUTPUT: test-results/jest/junit.xml
+
+      - run: bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN
+
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: test-results
+
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - node
