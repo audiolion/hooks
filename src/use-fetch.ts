@@ -1,4 +1,4 @@
-import { useAsyncFn } from './use-async-fn';
+import { useAsyncFn, AsyncState } from './use-async-fn';
 import { useIsMounted } from './use-is-mounted';
 import { Omit } from './utils';
 
@@ -117,7 +117,7 @@ export const useFetch = <S = any>({
     [url],
   );
 
-  return [state, callback];
+  return [state, callback] as [AsyncState<S>, () => void];
 };
 
 export type BaseUseFetch = {

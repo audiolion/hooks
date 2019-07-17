@@ -1,6 +1,6 @@
-import { act, renderHook } from 'react-hooks-testing-library';
-import { checkStatus } from '../use-fetch';
 import fetchMock from 'fetch-mock';
+import { act, renderHook } from 'react-hooks-testing-library';
+import { checkStatus, request, useFetch, baseUseFetch } from '../use-fetch';
 
 const url = 'http://example.com';
 describe('checkStatus', () => {
@@ -55,7 +55,6 @@ describe('checkStatus', () => {
     fetchMock.once(url, {
       status: 418,
       body: JSON.stringify({ errors: ['failed'] }),
-      headers: { 'Content-Type': 'application/json' },
     });
     let err: any;
     await fetch(url)
@@ -93,6 +92,201 @@ describe('checkStatus', () => {
       });
     expect(err.details).toStrictEqual({
       base: 'failed',
+    });
+  });
+});
+
+describe('request', () => {
+  afterEach(() => {
+    fetchMock.restore();
+  });
+
+  it('returns json data', async () => {
+    fetchMock.once(url, {
+      status: 200,
+      body: JSON.stringify({ data: 'hi' }),
+    });
+
+    let success: any;
+    const primedRequest = request(
+      url,
+      {},
+      data => {
+        success = data;
+      },
+      () => {},
+    );
+
+    const res = await primedRequest();
+    expect(res).toStrictEqual({ data: 'hi' });
+    expect(success).toStrictEqual({ data: 'hi' });
+  });
+
+  it('calls onError', async () => {
+    fetchMock.once(url, {
+      status: 418,
+      body: JSON.stringify({ data: 'hi' }),
+    });
+
+    let error: any;
+
+    const primedRequest = request(
+      url,
+      {},
+      () => {},
+      err => {
+        error = err;
+      },
+    );
+
+    await primedRequest().catch(() => {});
+    expect(`${error}`).toEqual(`Error: HTTP Error: I'm a Teapot`);
+  });
+
+  it('accepts new url and body before sending request', async () => {
+    fetchMock.once(url, {
+      status: 200,
+      body: JSON.stringify({ data: 'hi' }),
+    });
+
+    let success: any;
+    const primedRequest = request(
+      `${url}/1`,
+      {},
+      data => {
+        success = data;
+      },
+      () => {},
+    );
+
+    const res = await primedRequest({ url, body: { hey: 'yo' }, options: {} });
+    expect(res).toStrictEqual({ data: 'hi' });
+    expect(success).toStrictEqual({ data: 'hi' });
+  });
+});
+
+describe('useFetch', () => {
+  afterEach(() => {
+    fetchMock.restore();
+  });
+
+  it('fetches and returns data', async () => {
+    fetchMock.once(url, {
+      status: 200,
+      body: JSON.stringify({ data: 'hi' }),
+    });
+
+    let success: any;
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useFetch({
+        url,
+        options: {},
+        onSuccess: data => {
+          success = data;
+        },
+        onError: () => {},
+      }),
+    );
+
+    let [state, callback] = result.current;
+    expect(state).toStrictEqual({ loading: false });
+
+    act(() => callback());
+
+    [state, callback] = result.current;
+
+    expect(state).toStrictEqual({ loading: true });
+
+    await waitForNextUpdate();
+
+    [state, callback] = result.current;
+
+    expect(state).toStrictEqual({
+      loading: false,
+      value: { data: 'hi' },
+    });
+    expect(success).toStrictEqual({
+      data: 'hi',
+    });
+  });
+
+  it('aborts a fetch in-flight', async () => {
+    fetchMock.once(url, {
+      status: 200,
+      body: JSON.stringify({ data: 'hi' }),
+    });
+
+    let error: any;
+    const { result, unmount, waitForNextUpdate } = renderHook(() =>
+      useFetch({
+        url,
+        options: {},
+        onSuccess: () => {},
+        onError: () => {},
+      }),
+    );
+
+    let [state, callback] = result.current;
+    expect(state).toStrictEqual({ loading: false });
+
+    act(() => callback());
+
+    [state, callback] = result.current;
+
+    expect(state).toStrictEqual({ loading: true });
+
+    unmount();
+
+    [state, callback] = result.current;
+
+    expect(state).toStrictEqual({
+      loading: true,
+    });
+    expect(error).toBeUndefined();
+  });
+});
+
+describe('baseUseFetch', () => {
+  it('initializes useFetch', async () => {
+    fetchMock.postOnce(`${url}/api`, {
+      status: 201,
+      body: JSON.stringify({ success: true }),
+    });
+    const useFetch = baseUseFetch({
+      getAuthorization: () => ({ Authorization: 'Token hi' }),
+      getBaseUrl: () => 'http://example.com',
+      defaultOptions: {
+        method: 'POST',
+      },
+    });
+
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useFetch({
+        url: '/api',
+        options: {},
+        onSuccess: () => {},
+        onError: () => {},
+      }),
+    );
+
+    let [state, callback] = result.current;
+
+    expect(state.loading).toBe(false);
+
+    act(() => callback());
+
+    [state, callback] = result.current;
+
+    expect(state.loading).toBe(true);
+
+    await waitForNextUpdate();
+
+    [state, callback] = result.current;
+
+    expect(state.loading).toBe(false);
+
+    expect(state.value).toStrictEqual({
+      success: true,
     });
   });
 });
