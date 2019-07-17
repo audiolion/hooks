@@ -13,6 +13,11 @@
   "bugs": {
     "url": "https://github.com/audiolion/hooks/issues"
   },
+  "keywords": [
+    "react",
+    "hooks",
+    "typescript"
+  ],
   "scripts": {
     "build": "rollup -c && tsc",
     "dev": "rollup -c -w",
