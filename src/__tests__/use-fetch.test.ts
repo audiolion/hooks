@@ -289,4 +289,48 @@ describe('baseUseFetch', () => {
       success: true,
     });
   });
+
+  it('allows promise-bsaed getAuthorization', async () => {
+    fetchMock.postOnce(`${url}/api2`, {
+      status: 201,
+      body: JSON.stringify({ success: true }),
+    });
+
+    const useFetch = baseUseFetch({
+      getAuthorization: async () => ({ Authorization: 'Token hi' }),
+      getBaseUrl: () => 'http://example.com',
+      defaultOptions: {
+        method: 'POST',
+      },
+    });
+
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useFetch({
+        url: '/api2',
+        options: {},
+        onSuccess: () => {},
+        onError: () => {},
+      }),
+    );
+
+    let [state, callback] = result.current;
+
+    expect(state.loading).toBe(false);
+
+    act(() => callback());
+
+    [state, callback] = result.current;
+
+    expect(state.loading).toBe(true);
+
+    await waitForNextUpdate();
+
+    [state, callback] = result.current;
+
+    expect(state.loading).toBe(false);
+
+    expect(state.value).toStrictEqual({
+      success: true,
+    });
+  });
 });
