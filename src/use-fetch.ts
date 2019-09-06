@@ -121,9 +121,7 @@ export const useFetch = <S = any>({
 };
 
 export type BaseUseFetch = {
-  getAuthorization?: () =>
-    | { Authorization: string }
-    | Promise<{ Authorization: string }>;
+  getAuthorization?: () => { Authorization: string };
   getBaseUrl?: () => string;
   defaultOptions?: Partial<RequestInit>;
 };
@@ -144,19 +142,12 @@ export const baseUseFetch = ({
       : options;
 
     if (getAuthorization) {
-      const headers = {
-        ...(fetchOptions.headers || {}),
-      };
-
-      Object.defineProperty(headers, 'Authorization', {
-        get: async function() {
-          return await getAuthorization();
-        },
-      });
-
       fetchOptions = {
         ...fetchOptions,
-        headers,
+        headers: {
+          ...(fetchOptions.headers || {}),
+          ...getAuthorization(),
+        },
       };
     }
 
